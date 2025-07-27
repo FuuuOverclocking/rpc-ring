@@ -1,0 +1,14 @@
+[workspace]
+resolver = "3"
+members = ["rpc-ring-macro"]
+
+[package]
+name = "rpc-ring"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rpc-ring-macro = { path = "rpc-ring-macro" }
+
+crossbeam-utils = "0.8.21"
+static_assertions = "1.1.0"
