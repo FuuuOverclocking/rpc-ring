@@ -39,7 +39,11 @@ impl Parse for SchemaEntry {
 
         input.parse::<Token![;]>()?;
 
-        Ok(Self { discriminant, req, resp })
+        Ok(Self {
+            discriminant,
+            req,
+            resp,
+        })
     }
 }
 #[proc_macro]
@@ -50,7 +54,10 @@ pub fn def_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     };
 
     let request_types = schema.entries.iter().map(|entry| &entry.req);
-    let request_discriminant_tokens = schema.entries.iter().map(|entry| entry.discriminant.as_ref().map(|d| quote! { = #d }));
+    let request_discriminant_tokens = schema
+        .entries
+        .iter()
+        .map(|entry| entry.discriminant.as_ref().map(|d| quote! { = #d }));
 
     let response_types = schema.entries.iter().map(|entry| &entry.resp);
     let response_field_names_result: syn::Result<Vec<syn::Ident>> = schema
@@ -65,7 +72,7 @@ pub fn def_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                     "Request type must be a path-like type (e.g., 'MyRequest')",
                 ));
             };
-            
+
             let req_type_ident = if let Some(ident) = type_path.path.get_ident() {
                 ident
             } else {
