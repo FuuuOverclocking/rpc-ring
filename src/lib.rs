@@ -1,17 +1,17 @@
 pub mod compact_str;
 
-use std::sync::atomic::AtomicU32;
+use core::sync::atomic::AtomicU32;
+use core::mem;
 
 use crossbeam_utils::CachePadded;
-use rpc_ring_macro::def_schema;
-use static_assertions::const_assert;
-
-use crate::compact_str::CompactString;
+pub use rpc_ring_macro::def_schema;
 
 #[repr(C, align(4096))]
-struct Ring {
-    // Offset 0
-    metadata: Metadata,
+pub struct SpscRing<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta = ()> {
+    /// Submission Queue.
+    sq: [Sqe; N_SQE],
+    /// Completion Queue.
+    cq: [Cqe; N_CQE],
 
     // Client write.
     sq_tail: CachePadded<AtomicU32>,
@@ -21,53 +21,35 @@ struct Ring {
     sq_head: CachePadded<AtomicU32>,
     cq_tail: CachePadded<AtomicU32>,
 
-    _padding: [u8; 4096 - size_of::<Metadata>() - 4 * size_of::<CachePadded<AtomicU32>>()],
-
-    // Offset 4096
-    /// Submission Queue.
-    sq: [Sqe; 32], // size = 2048
-    /// Completion Queue.
-    cq: [Cqe; 32], // size = 2048
+    meta: Meta,
 }
 
-#[repr(C)]
-struct Metadata {
-    magic: [u8; 4],
-    version: u8,
-    _resv: [u8; 3],
+impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta> Default
+    for SpscRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
+where
+    Meta: Default,
+{
+    fn default() -> Self {
+        Self {
+            sq: unsafe { mem::MaybeUninit::uninit().assume_init() },
+            cq: unsafe { mem::MaybeUninit::uninit().assume_init() },
+            sq_tail: Default::default(),
+            cq_head: Default::default(),
+            sq_head: Default::default(),
+            cq_tail: Default::default(),
+            meta: Default::default(),
+        }
+    }
 }
 
-const_assert!(size_of::<Sqe>() <= 64);
-#[repr(C, align(64))]
-struct Sqe {
-    id: u64,
-    req: Request,
-}
+impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta>
+    SpscRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
+{
+    pub fn meta(&self) -> &Meta {
+        &self.meta
+    }
 
-const_assert!(size_of::<Cqe>() <= 64);
-#[repr(C, align(64))]
-struct Cqe {
-    id: u64,
-    resp: Response,
-}
-
-def_schema! {
-    1000:
-    LinkRead -> Result<CompactString<48>, i32>;
-    FileStat -> Result<Box<std::fs::Metadata>, i32>;
-
-    2000:
-    FileRemove -> i32;
-}
-
-pub struct FileStat {
-    path: CompactString<48>,
-}
-
-pub struct LinkRead {
-    path: CompactString<48>,
-}
-
-pub struct FileRemove {
-    path: CompactString<48>,
+    pub fn meta_mut(&mut self) -> &mut Meta {
+        &mut self.meta
+    }
 }

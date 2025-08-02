@@ -1,5 +1,12 @@
 use std::{cmp, mem, ptr, slice};
 
+pub type CompactString16 = CompactString<16>;
+pub type CompactString24 = CompactString<24>;
+pub type CompactString32 = CompactString<32>;
+pub type CompactString40 = CompactString<40>;
+pub type CompactString48 = CompactString<48>;
+pub type CompactString56 = CompactString<56>;
+
 #[repr(C, align(8))]
 pub struct CompactString<const N: usize> {
     bytes: [u8; N],
