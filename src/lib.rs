@@ -1,7 +1,7 @@
 pub mod compact_str;
 
-use core::sync::atomic::AtomicU32;
 use core::mem;
+use core::sync::atomic::AtomicU32;
 
 use crossbeam_utils::CachePadded;
 pub use rpc_ring_macro::def_schema;
@@ -27,6 +27,8 @@ pub struct SpscRing<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta = ()>
 impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta> Default
     for SpscRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
 where
+    Sqe: Copy,
+    Cqe: Copy,
     Meta: Default,
 {
     fn default() -> Self {
