@@ -11,3 +11,4 @@ edition = "2024"
 rpc-ring-macro = { path = "rpc-ring-macro" }
 
 crossbeam-utils = "0.8.21"
+ringbuf = "0.4.8"

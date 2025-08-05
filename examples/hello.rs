@@ -1,8 +1,8 @@
-use rpc_ring::SpscRing;
+use rpc_ring::RpcRing;
 use rpc_ring::compact_str::CompactString48;
 use rpc_ring::def_schema;
 
-type MyRing = SpscRing<Sqe, Cqe, 32, 32, Metadata>;
+type MyRing = RpcRing<Sqe, Cqe, 32, 32, Metadata>;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -46,6 +46,4 @@ pub struct FileRemove {
     path: CompactString48,
 }
 
-fn main() {
-    
-}
+fn main() {}

@@ -185,12 +185,14 @@ pub fn def_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
     let output = quote! {
         const _: () = assert!(size_of::<#sqe_name>() == #sqe_size);
+        #[derive(Clone, Copy)]
         #[repr(C, align(#sqe_size))]
         struct #sqe_name {
             id: u64,
             req: #req_name,
         }
 
+        #[derive(Clone, Copy)]
         #[repr(C, u32)]
         #[non_exhaustive]
         pub enum #req_name {
@@ -210,12 +212,14 @@ pub fn def_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         }
 
         const _: () = assert!(size_of::<#cqe_name>() == #cqe_size);
+        #[derive(Clone, Copy)]
         #[repr(C, align(#cqe_size))]
         struct #cqe_name {
             id: u64,
             resp: #resp_name,
         }
 
+        #[derive(Clone, Copy)]
         #[repr(C)]
         pub union #resp_name {
             #(

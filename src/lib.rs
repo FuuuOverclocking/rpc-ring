@@ -7,7 +7,7 @@ use crossbeam_utils::CachePadded;
 pub use rpc_ring_macro::def_schema;
 
 #[repr(C, align(4096))]
-pub struct SpscRing<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta = ()> {
+pub struct RpcRing<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta = ()> {
     /// Submission Queue.
     sq: [Sqe; N_SQE],
     /// Completion Queue.
@@ -25,7 +25,7 @@ pub struct SpscRing<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta = ()>
 }
 
 impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta> Default
-    for SpscRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
+    for RpcRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
 where
     Sqe: Copy,
     Cqe: Copy,
@@ -44,9 +44,7 @@ where
     }
 }
 
-impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta>
-    SpscRing<Sqe, Cqe, N_SQE, N_CQE, Meta>
-{
+impl<Sqe, Cqe, const N_SQE: usize, const N_CQE: usize, Meta> RpcRing<Sqe, Cqe, N_SQE, N_CQE, Meta> {
     pub fn meta(&self) -> &Meta {
         &self.meta
     }
